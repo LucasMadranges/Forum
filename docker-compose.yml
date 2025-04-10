@@ -1,0 +1,53 @@
+services:
+  front-forum:
+    image: node:22
+    container_name: front-forum
+    working_dir: /app
+    volumes:
+      - ./front:/app
+    ports:
+      - "3000:3000"
+    command: sh -c "npm install && npm run dev"
+    depends_on:
+      - back-forum
+      - db-forum
+    env_file:
+      - ./front/.env.local
+    networks:
+      - networkForum
+  
+  back-forum:
+    image: node:22
+    container_name: back-forum
+    working_dir: /app
+    volumes:
+      - ./back:/app
+    ports:
+      - "4000:4000"
+    command: sh -c "npm install && npm run start:dev"
+    depends_on:
+      - db-forum
+    env_file:
+      - ./back/.env
+    networks:
+      - networkForum
+
+  db-forum:
+    image: postgres:13
+    container_name: db-forum
+    env_file:
+      - ./back/.env
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - networkForum
+
+volumes:
+  postgres-data:
+
+networks:
+  networkForum:
+    driver: bridge
+    name: networkForum
