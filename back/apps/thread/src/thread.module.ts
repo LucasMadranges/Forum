@@ -3,8 +3,8 @@ import { ThreadController } from './thread.controller';
 import { ThreadService } from './thread.service';
 
 @Module({
-  imports: [],
-  controllers: [ThreadController],
-  providers: [ThreadService],
+    imports: [],
+    controllers: [ThreadController],
+    providers: [ThreadService],
 })
 export class ThreadModule {}

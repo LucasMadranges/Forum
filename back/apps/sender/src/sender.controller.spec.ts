@@ -3,20 +3,20 @@ import { SenderController } from './sender.controller';
 import { SenderService } from './sender.service';
 
 describe('SenderController', () => {
-  let senderController: SenderController;
+    let senderController: SenderController;
 
-  beforeEach(async () => {
-    const app: TestingModule = await Test.createTestingModule({
-      controllers: [SenderController],
-      providers: [SenderService],
-    }).compile();
+    beforeEach(async () => {
+        const app: TestingModule = await Test.createTestingModule({
+            controllers: [SenderController],
+            providers: [SenderService],
+        }).compile();
 
-    senderController = app.get<SenderController>(SenderController);
-  });
-
-  describe('root', () => {
-    it('should return "Hello World!"', () => {
-      expect(senderController.getHello()).toBe('Hello World!');
+        senderController = app.get<SenderController>(SenderController);
     });
-  });
+
+    describe('root', () => {
+        it('should return "Hello World!"', () => {
+            expect(senderController.getHello()).toBe('Hello World!');
+        });
+    });
 });
