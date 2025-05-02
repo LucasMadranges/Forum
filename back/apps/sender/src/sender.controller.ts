@@ -3,10 +3,10 @@ import { SenderService } from './sender.service';
 
 @Controller()
 export class SenderController {
-  constructor(private readonly senderService: SenderService) {}
+    constructor(private readonly senderService: SenderService) {}
 
-  @Get()
-  getHello(): string {
-    return this.senderService.getHello();
-  }
+    @Get()
+    getHello(): string {
+        return this.senderService.getHello();
+    }
 }
