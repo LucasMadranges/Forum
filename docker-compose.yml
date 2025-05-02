@@ -1,65 +1,63 @@
 services:
+  front-forum:
+    image: node:22
+    container_name: front-forum
+    working_dir: /app
+    volumes:
+      - ./front:/app
+    ports:
+      - "3000:3000"
+    command: sh -c "npm install && npm run dev"
+    depends_on:
+      - sender-forum
+      - thread-forum
+      - db-forum
+    env_file:
+      - ./front/.env.local
+    networks:
+      - networkForum
+  
   sender-forum:
     image: node:22
     container_name: sender-forum
     working_dir: /app
     volumes:
-      - ./sender:/app
+      - ./back:/app
     ports:
-      - '8080:8080'
-    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 8080"
+      - "4000:4000"
+    command: sh -c "npm install && npm run start:dev thread"
     depends_on:
-      - api-forum
       - db-forum
     env_file:
-      - ./sender/.env
+      - ./back/.env
     networks:
       - networkForum
-
+        
   thread-forum:
     image: node:22
     container_name: thread-forum
     working_dir: /app
     volumes:
-      - ./thread:/app
+      - ./back:/app
     ports:
-      - '80:80'
-    command: sh -c "npm install && npm run dev -- --host 0.0.0.0 --port 80"
-    depends_on:
-      - api-forum
-      - db-forum
-    env_file:
-      - ./thread/.env
-    networks:
-      - networkForum
-
-  api-forum:
-    image: node:22
-    container_name: api-forum
-    working_dir: /app
-    volumes:
-      - ./api:/app
-    ports:
-      - '3000:3000'
-    command: sh -c "npm install && npm run start:dev"
+      - "4001:4001"
+    command: sh -c "npm install && npm run start:dev sender"
     depends_on:
       - db-forum
     env_file:
-      - ./api/.env
+      - ./back/.env
     networks:
       - networkForum
 
   db-forum:
     image: postgres:13
     container_name: db-forum
-    environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=password
-      - POSTGRES_DB=forum_db
+    env_file:
+      - ./back/.env
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
-      - '5432:5432'
+      - "5432:5432"
     networks:
       - networkForum
 
