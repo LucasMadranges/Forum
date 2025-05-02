@@ -9,22 +9,39 @@ services:
       - "3000:3000"
     command: sh -c "npm install && npm run dev"
     depends_on:
-      - back-forum
+      - sender-forum
+      - thread-forum
       - db-forum
     env_file:
       - ./front/.env.local
     networks:
       - networkForum
   
-  back-forum:
+  sender-forum:
     image: node:22
-    container_name: back-forum
+    container_name: sender-forum
     working_dir: /app
     volumes:
       - ./back:/app
     ports:
       - "4000:4000"
-    command: sh -c "npm install && npm run start:dev"
+    command: sh -c "npm install && npm run start:dev thread"
+    depends_on:
+      - db-forum
+    env_file:
+      - ./back/.env
+    networks:
+      - networkForum
+        
+  thread-forum:
+    image: node:22
+    container_name: thread-forum
+    working_dir: /app
+    volumes:
+      - ./back:/app
+    ports:
+      - "4001:4001"
+    command: sh -c "npm install && npm run start:dev sender"
     depends_on:
       - db-forum
     env_file:
