@@ -1,29 +1,40 @@
-import { useState } from 'react';
-import reactLogo from './assets/react.svg';
-import viteLogo from '/vite.svg';
 import './App.css';
+import { useState } from 'react';
 
 function App() {
-  const [count, setCount] = useState(0);
+  const [username, setUsername] = useState('');
+  const [message, setMessage] = useState('');
+
+  async function handleSendMessage() {
+    await fetch('http://localhost:3000/message', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        username,
+        message,
+      }),
+    });
+  }
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+      <a href={'http://localhost:80/'}>Lire les messages</a>
+      <h1>Envoyer un message</h1>
+      <div className={'container'}>
+        <div className={'input'}>
+          <label>Nom d'utilisateur</label>
+          <input value={username} onChange={e => setUsername(e.target.value)} type={'text'} />
+        </div>
+
+        <div className={'input'}>
+          <label>Message</label>
+          <textarea value={message} onChange={e => setMessage(e.target.value)} rows={12} />
+        </div>
+
+        <button onClick={handleSendMessage}>Envoyer</button>
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount(count => count + 1)}>count is {count}</button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">Click on the Vite and React logos to learn more</p>
     </>
   );
 }
