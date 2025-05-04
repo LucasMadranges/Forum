@@ -4,18 +4,25 @@ import { useState } from 'react';
 function App() {
   const [username, setUsername] = useState('');
   const [message, setMessage] = useState('');
+  const [isSuccess, setIsSuccess] = useState(false);
 
   async function handleSendMessage() {
-    await fetch('http://localhost:3000/message', {
+    setIsSuccess(false);
+
+    const response = await fetch('http://localhost:3000/message', {
       method: 'POST',
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json', // <-- ajout du header
       },
       body: JSON.stringify({
         username,
         message,
       }),
     });
+
+    if (response.ok) {
+      setIsSuccess(true);
+    }
   }
 
   return (
@@ -33,7 +40,15 @@ function App() {
           <textarea value={message} onChange={e => setMessage(e.target.value)} rows={12} />
         </div>
 
-        <button onClick={handleSendMessage}>Envoyer</button>
+        <button style={{ marginBottom: '24px' }} onClick={handleSendMessage}>
+          Envoyer
+        </button>
+
+        {isSuccess && (
+          <div>
+            <span style={{ color: 'lightgreen' }}>Message envoyé avec succès</span>
+          </div>
+        )}
       </div>
     </>
   );
