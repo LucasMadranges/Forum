@@ -1,11 +1,11 @@
-import React from "react";
+import React from 'react';
 
 export default function Input({
-                                  label,
-                                  name,
-                                  value,
-                                  onChange,
-                              }: {
+    label,
+    name,
+    value,
+    onChange,
+}: {
     label: string;
     name: string;
     value: string;
@@ -13,15 +13,14 @@ export default function Input({
 }) {
     return (
         <>
-            <label htmlFor={name}
-                   className={"font-bold"}>
+            <label htmlFor={name} className={'font-bold'}>
                 {label}
             </label>
             <input
                 name={name}
                 id={name}
-                type={"text"}
-                className={"border border-gray-300 rounded-lg p-2"}
+                type={'text'}
+                className={'border border-gray-300 rounded-lg p-2'}
                 value={value}
                 onChange={onChange}
             />
