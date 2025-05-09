@@ -101,6 +101,6 @@ jobs:
       - name: Build and push Docker image
         uses: docker/build-push-action@v6
         with:
-          context: .
+          context: ${{ matrix.context }}
           push: true
           tags: ghcr.io/lucasmadranges/forum/${{ matrix.service }}:latest
