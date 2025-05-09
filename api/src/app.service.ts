@@ -5,6 +5,10 @@ import { PrismaService } from '../prisma/service/prisma.service';
 export class AppService {
   constructor(private prisma: PrismaService) {}
 
+  async getHello() {
+    return 'Hello World!';
+  }
+
   async getMessages() {
     return this.prisma.message.findMany();
   }

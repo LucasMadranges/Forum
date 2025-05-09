@@ -12,7 +12,7 @@ name: ci-cd
 
 jobs:
   lint-and-format:
-    name: Lint & Format
+    name: Lint & Format code
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -32,8 +32,19 @@ jobs:
           npx eslint .
 
   tests:
-    name: Tests
+    name: Run All Tests
+    needs: lint-and-format
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service: [thread, sender]
+        include:
+          - service: thread
+            context: ./thread
+          - service: sender
+            context: ./sender
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -53,6 +64,18 @@ jobs:
     name: Build & Publish Docker Image
     needs: [lint-and-format, tests]
     runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service: [thread, sender, api]
+        include:
+          - service: thread
+            context: ./thread
+          - service: sender
+            context: ./sender
+          - service: api
+            context: ./api
+
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4

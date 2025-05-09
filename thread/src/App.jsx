@@ -5,7 +5,7 @@ function App() {
   const [messages, setMessages] = useState([]);
 
   async function handleGetMessages() {
-    const response = await fetch('http://localhost:3000/', {
+    const response = await fetch('http://localhost:3000/message', {
       method: 'GET',
     });
     const data = await response.json();
