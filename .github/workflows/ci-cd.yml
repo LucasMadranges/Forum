@@ -103,4 +103,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository_owner }}/${{ matrix.service }}:latest
+          tags: ghcr.io/lucasmadranges/forum/${{ matrix.service }}:latest
