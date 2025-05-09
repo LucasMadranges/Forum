@@ -1,10 +1,28 @@
 {
+  "version": "1.0.0",
   "devDependencies": {
+    "@commitlint/cli": "^19.8.0",
+    "@commitlint/config-conventional": "^19.8.0",
     "eslint": "^9.24.0",
+    "eslint-config-prettier": "^10.1.2",
+    "eslint-plugin-prettier": "^5.2.6",
     "husky": "^9.1.7",
-    "lint-staged": "^15.5.0"
+    "prettier": "^3.5.3"
   },
+  "type": "module",
+  "workspaces": [
+    "api",
+    "thread",
+    "sender"
+  ],
   "scripts": {
+    "lint": "eslint .",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
     "prepare": "husky"
+  },
+  "dependencies": {
+    "@eslint/eslintrc": "^3.3.1"
   }
 }

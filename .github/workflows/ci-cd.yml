@@ -1,0 +1,106 @@
+on:
+  push:
+    branches:
+      - develop
+
+permissions:
+  contents: write
+  pull-requests: write
+  packages: write
+
+name: ci-cd
+
+jobs:
+  lint-and-format:
+    name: Lint & Format code
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run lint and format (via Husky)
+        run: |
+          npx prettier --check .
+          npx eslint .
+
+  tests:
+    name: Run All Tests
+    needs: lint-and-format
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service: [thread, sender]
+        include:
+          - service: thread
+            context: ./thread
+          - service: sender
+            context: ./sender
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install
+        working-directory: ${{ matrix.context }}
+
+      - name: Run tests
+        run: npm test
+        working-directory: ${{ matrix.context }}
+
+  packages:
+    name: Build & Publish Docker Image
+    needs: [lint-and-format, tests]
+    runs-on: ubuntu-latest
+
+    strategy:
+      matrix:
+        service: [thread, sender, api]
+        include:
+          - service: thread
+            context: ./thread
+          - service: sender
+            context: ./sender
+          - service: api
+            context: ./api
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up QEMU
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.FORUM_TOKEN }}
+
+      - name: Build and push Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ matrix.context }}
+          push: true
+          tags: ghcr.io/lucasmadranges/forum/${{ matrix.service }}:latest
