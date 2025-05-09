@@ -103,4 +103,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: ghcr.io/${{ github.repository }}/front:develop
+          tags: ghcr.io/${{ github.repository.lowercase() }}/${{ matrix.service }}:latest
