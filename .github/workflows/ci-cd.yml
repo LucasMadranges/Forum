@@ -59,6 +59,7 @@ jobs:
 
       - name: Run tests
         run: npm test
+        working-directory: ${{ matrix.context }}
 
   packages:
     name: Build & Publish Docker Image
