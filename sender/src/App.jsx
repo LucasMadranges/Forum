@@ -31,13 +31,25 @@ function App() {
       <h1>Envoyer un message</h1>
       <div className={'container'}>
         <div className={'input'}>
-          <label>Nom d'utilisateur</label>
-          <input value={username} onChange={e => setUsername(e.target.value)} type={'text'} />
+          <label htmlFor={'username'}>Nom d'utilisateur</label>
+          <input
+            name={'username'}
+            id={'username'}
+            value={username}
+            onChange={e => setUsername(e.target.value)}
+            type={'text'}
+          />
         </div>
 
         <div className={'input'}>
-          <label>Message</label>
-          <textarea value={message} onChange={e => setMessage(e.target.value)} rows={12} />
+          <label htmlFor={'message'}>Message</label>
+          <textarea
+            name={'message'}
+            id={'message'}
+            value={message}
+            onChange={e => setMessage(e.target.value)}
+            rows={12}
+          />
         </div>
 
         <button style={{ marginBottom: '24px' }} onClick={handleSendMessage}>
