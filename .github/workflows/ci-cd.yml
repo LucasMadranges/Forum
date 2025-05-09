@@ -12,7 +12,7 @@ name: ci-cd
 
 jobs:
   lint-and-format:
-    name: Lint & Format code
+    name: Lint & Format
     runs-on: ubuntu-latest
     steps:
       - name: Checkout repository
@@ -32,19 +32,8 @@ jobs:
           npx eslint .
 
   tests:
-    name: Run All Tests
-    needs: lint-and-format
+    name: Tests
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        service: [thread, sender]
-        include:
-          - service: thread
-            context: ./thread
-          - service: sender
-            context: ./sender
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -57,30 +46,13 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      - name: Install Playwright browsers
-        run: npx playwright install
-        working-directory: ${{ matrix.context }}
-
       - name: Run tests
         run: npm test
-        working-directory: ${{ matrix.context }}
 
   packages:
     name: Build & Publish Docker Image
     needs: [lint-and-format, tests]
     runs-on: ubuntu-latest
-
-    strategy:
-      matrix:
-        service: [thread, sender, api]
-        include:
-          - service: thread
-            context: ./thread
-          - service: sender
-            context: ./sender
-          - service: api
-            context: ./api
-
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
@@ -99,8 +71,8 @@ jobs:
           password: ${{ secrets.FORUM_TOKEN }}
 
       - name: Build and push Docker image
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v5
         with:
-          context: ${{ matrix.context }}
+          context: .
           push: true
-          tags: ghcr.io/lucasmadranges/forum/${{ matrix.service }}:latest
+          tags: ghcr.io/${{ github.repository }}/front:develop
