@@ -1,0 +1,8 @@
+# Exclusions classiques
+node_modules
+dist
+build
+*.md
+
+# Next.js build
+front/.next

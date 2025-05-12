@@ -1,5 +1,7 @@
 import prettierPlugin from 'eslint-plugin-prettier';
 import prettierConfig from 'eslint-config-prettier';
+import tseslint from '@typescript-eslint/eslint-plugin';
+import tsParser from '@typescript-eslint/parser';
 
 const processEnv = typeof process !== 'undefined' ? process.env : { NODE_ENV: 'development' };
 
@@ -8,17 +10,19 @@ export default [
   {
     ignores: [
       'node_modules/**',
-      'dist/**',
+      'api/dist/**',
       'build/**',
       '.github/**',
       '*.md',
       '*.sql',
       'package-lock.json',
+      'thread/.vite',
+      'sender/.vite',
     ],
   },
   // Configuration commune
   {
-    files: ['**/*.js'],
+    files: ['**/*.{js,ts,tsx}'],
     languageOptions: {
       ecmaVersion: 2022,
       sourceType: 'module',
@@ -47,7 +51,7 @@ export default [
   },
   // Configuration pour l'API (backend)
   {
-    files: ['api/**/*.js'],
+    files: ['api/**/*.{js,ts,tsx}'],
     languageOptions: {
       globals: {
         // Variables globales Node.js
@@ -64,7 +68,11 @@ export default [
   },
   // Configuration pour les tests Jest
   {
-    files: ['api/**/__tests__/**/*.js', 'api/**/*.test.js', 'api/**/*.spec.js'],
+    files: [
+      'api/**/__tests__/**/*.{js,ts,tsx}',
+      'api/**/*.test.{js,ts,tsx}',
+      'api/**/*.spec.{js,ts,tsx}',
+    ],
     languageOptions: {
       globals: {
         // Variables globales Jest
@@ -84,7 +92,7 @@ export default [
   },
   // Configuration pour les frontends
   {
-    files: ['thread/**/*.js', 'sender/**/*.js'],
+    files: ['thread/**/*.{js,ts,tsx}', 'sender/**/*.{js,ts,tsx}'],
     languageOptions: {
       globals: {
         // Variables globales de navigateur
@@ -98,7 +106,7 @@ export default [
     },
   },
   {
-    files: ['*.js'], // Pour tous les JS à la racine (commitlint.config.js, etc.)
+    files: ['*.{js,ts,tsx}'], // Pour tous les JS à la racine (commitlint.config.js, etc.)
     languageOptions: {
       globals: {
         module: 'readonly',
@@ -108,6 +116,25 @@ export default [
         __dirname: 'readonly',
         __filename: 'readonly',
       },
+    },
+  },
+  // Config spécifique pour tous les fichiers TypeScript
+  {
+    files: ['**/*.ts', '**/*.tsx'],
+    languageOptions: {
+      parser: tsParser,
+      parserOptions: {
+        project: ['./api/tsconfig.json'], // Attention à l'emplacement et au nom de ton tsconfig pour l'API !
+        tsconfigRootDir: process.cwd(),
+        ecmaVersion: 2022,
+        sourceType: 'module',
+      },
+    },
+    plugins: {
+      '@typescript-eslint': tseslint,
+    },
+    rules: {
+      ...tseslint.configs.recommended.rules,
     },
   },
   // Intégration de Prettier
