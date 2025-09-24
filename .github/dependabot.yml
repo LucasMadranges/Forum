@@ -5,25 +5,25 @@ updates:
     directory: "/thread"
     schedule:
       interval: "daily"
-    target-branch: "dev"
+    target-branch: "develop"
 
   # Front React - Sender
   - package-ecosystem: "npm"
     directory: "/sender"
     schedule:
       interval: "daily"
-    target-branch: "dev"
+    target-branch: "develop"
 
   # API NestJS
   - package-ecosystem: "npm"
     directory: "/api"
     schedule:
       interval: "daily"
-    target-branch: "dev"
+    target-branch: "develop"
 
   # Terraform
   - package-ecosystem: "terraform"
     directory: "/infrastructure"
     schedule:
       interval: "daily"
-    target-branch: "dev"
+    target-branch: "develop"
