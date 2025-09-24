@@ -37,7 +37,7 @@ jobs:
 
     strategy:
       matrix:
-        service: [thread, sender]
+        service: [ thread, sender ]
         include:
           - service: thread
             context: ./thread
@@ -66,12 +66,12 @@ jobs:
 
   packages:
     name: Build & Publish Docker Image
-    needs: [lint-and-format, tests]
+    needs: [ lint-and-format, tests ]
     runs-on: ubuntu-latest
 
     strategy:
       matrix:
-        service: [thread, sender, api]
+        service: [ thread, sender, api ]
         include:
           - service: thread
             context: ./thread
