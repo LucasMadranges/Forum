@@ -1,0 +1,29 @@
+version: 2
+updates:
+  # Front React - Thread
+  - package-ecosystem: "npm"
+    directory: "/thread"
+    schedule:
+      interval: "daily"
+    target-branch: "dev"
+
+  # Front React - Sender
+  - package-ecosystem: "npm"
+    directory: "/sender"
+    schedule:
+      interval: "daily"
+    target-branch: "dev"
+
+  # API NestJS
+  - package-ecosystem: "npm"
+    directory: "/api"
+    schedule:
+      interval: "daily"
+    target-branch: "dev"
+
+  # Terraform
+  - package-ecosystem: "terraform"
+    directory: "/infrastructure"
+    schedule:
+      interval: "daily"
+    target-branch: "dev"
