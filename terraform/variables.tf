@@ -10,6 +10,12 @@ variable "aws_s3" {
   description = "Nom du bucket S3"
 }
 
+variable "vpc_id" {
+  description = "ID du VPC existant où créer le Security Group"
+  type        = string
+  default     = "vpc-0c896c57e26844c55"
+}
+
 variable "aws_instance_type" {
   description = "Type d'instance"
   type        = string
