@@ -1,15 +1,28 @@
-resource "aws_s3_bucket" "tf_state" {
-  bucket = var.aws_s3
+// SSH key
+resource "tls_private_key" "key" {
+  algorithm = "RSA"
+  rsa_bits  = 4096
+}
+
+resource "aws_key_pair" "deployer" {
+  key_name   = var.ssh_key_name
+  public_key = tls_private_key.key.public_key_openssh
+}
+
+resource "local_file" "private_key" {
+  content         = tls_private_key.key.private_key_pem
+  filename        = "${path.module}/${aws_key_pair.deployer.key_name}.pem"
+  file_permission = "0600"
 }
 
 // Security Group
 resource "aws_security_group" "ec2_web" {
   name        = "${var.aws_instance_name}-security"
-  description = "Acces HTTP/HTTPS/SSH"
+  description = "Open port for different instances"
   vpc_id      = var.vpc_id
 
   ingress {
-    description = "HTTP"
+    description = "Thread"
     from_port   = 80
     to_port     = 80
     protocol    = "tcp"
@@ -17,19 +30,35 @@ resource "aws_security_group" "ec2_web" {
   }
 
   ingress {
-    description = "HTTPS"
-    from_port   = 443
-    to_port     = 443
+    description = "Sender"
+    from_port   = 8080
+    to_port     = 8080
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
-    description = "SSH (a restreindre a votre IP)"
+    description = "API"
+    from_port   = 3000
+    to_port     = 3000
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "DB"
+    from_port   = 5173
+    to_port     = 5173
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    description = "SSH"
     from_port   = 22
     to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] // remplace par ["<ton_ip>/32"]
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -43,11 +72,41 @@ resource "aws_security_group" "ec2_web" {
   tags = { Name = "${var.aws_instance_name}-security" }
 }
 
+// Instance EC2 DB
+resource "aws_instance" "db" {
+  ami                    = var.ami_id
+  instance_type          = var.aws_instance_type
+  key_name               = aws_key_pair.deployer.key_name
+  vpc_security_group_ids = [aws_security_group.ec2_web.id]
+
+  user_data = <<-EOF
+              #!/bin/bash
+              set -eux
+              apt-get update -y
+              apt-get install -y ca-certificates curl gnupg
+              install -m 0755 -d /etc/apt/keyrings
+              curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
+              chmod a+r /etc/apt/keyrings/docker.gpg
+              echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" > /etc/apt/sources.list.d/docker.list
+              apt-get update -y
+              apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
+              systemctl enable docker
+              systemctl start docker
+
+              docker run -d --name db --restart always -e POSTGRES_PASSWORD=changeme -p 5432:5432 postgres:15
+              EOF
+
+  tags = {
+    Name = "${var.aws_instance_name}-db"
+    Role = "db"
+  }
+}
+
 // Instance EC2 API
 resource "aws_instance" "api" {
   ami                    = var.ami_id
   instance_type          = var.aws_instance_type
-  key_name               = var.ssh_key_name
+  key_name               = aws_key_pair.deployer.key_name
   vpc_security_group_ids = [aws_security_group.ec2_web.id]
 
   user_data = <<-EOF
@@ -77,7 +136,7 @@ resource "aws_instance" "api" {
 resource "aws_instance" "thread" {
   ami                    = var.ami_id
   instance_type          = var.aws_instance_type
-  key_name               = var.ssh_key_name
+  key_name               = aws_key_pair.deployer.key_name
   vpc_security_group_ids = [aws_security_group.ec2_web.id]
 
   user_data = <<-EOF
@@ -85,27 +144,19 @@ resource "aws_instance" "thread" {
               set -eux
 
               # Install Docker
-              apt-get update -y
-              apt-get install -y ca-certificates curl gnupg
-              install -m 0755 -d /etc/apt/keyrings
-              curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-              chmod a+r /etc/apt/keyrings/docker.gpg
-              echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" > /etc/apt/sources.list.d/docker.list
-              apt-get update -y
-              apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-              systemctl enable docker
-              systemctl start docker
+              dnf update -y
+              dnf install -y docker
+              systemctl enable --now docker
+              usermod -aG docker ec2-user
 
               # Pull & run le front Sender
-              IMAGE="ghcr.io/lucasmadranges/forum/sender:latest"
               API_URL="http://lucasmdr-forum-api:5432"
 
-              docker pull "$IMAGE" || true
               docker rm -f sender || true
               docker run -d --name sender --restart always \
                 -p 80:80 \
                 -e VITE_API_URL="$API_URL" \
-                "$IMAGE"
+                ghcr.io/lucasmadranges/forum/sender:latest
               EOF
 
   tags = {
@@ -118,7 +169,7 @@ resource "aws_instance" "thread" {
 resource "aws_instance" "sender" {
   ami                    = var.ami_id
   instance_type          = var.aws_instance_type
-  key_name               = var.ssh_key_name
+  key_name               = aws_key_pair.deployer.key_name
   vpc_security_group_ids = [aws_security_group.ec2_web.id]
 
   user_data = <<-EOF
@@ -141,35 +192,5 @@ resource "aws_instance" "sender" {
   tags = {
     Name = "${var.aws_instance_name}-sender"
     Role = "sender"
-  }
-}
-
-// Instance EC2 DB
-resource "aws_instance" "db" {
-  ami                    = var.ami_id
-  instance_type          = var.aws_instance_type
-  key_name               = var.ssh_key_name
-  vpc_security_group_ids = [aws_security_group.ec2_web.id]
-
-  user_data = <<-EOF
-              #!/bin/bash
-              set -eux
-              apt-get update -y
-              apt-get install -y ca-certificates curl gnupg
-              install -m 0755 -d /etc/apt/keyrings
-              curl -fsSL https://download.docker.com/linux/ubuntu/gpg | gpg --dearmor -o /etc/apt/keyrings/docker.gpg
-              chmod a+r /etc/apt/keyrings/docker.gpg
-              echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu $(. /etc/os-release && echo $VERSION_CODENAME) stable" > /etc/apt/sources.list.d/docker.list
-              apt-get update -y
-              apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
-              systemctl enable docker
-              systemctl start docker
-
-              docker run -d --name db --restart always -e POSTGRES_PASSWORD=changeme -p 5432:5432 postgres:15
-              EOF
-
-  tags = {
-    Name = "${var.aws_instance_name}-db"
-    Role = "db"
   }
 }
