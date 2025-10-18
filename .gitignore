@@ -2,8 +2,3 @@
 node_modules
 .env
 .aws
-
-terraform/.terraform/
-terraform/terraform.tfstate
-terraform/terraform.tfstate.backup
-terraform/*.tfvars
