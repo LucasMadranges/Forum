@@ -4,10 +4,10 @@ variable "aws_region" {
   description = "Région AWS pour le déploiement"
 }
 
-variable "aws_s3" {
-  default     = "bucket-lucasmdr"
+variable "vpc_id" {
+  description = "ID du VPC existant où créer le Security Group"
   type        = string
-  description = "Nom du bucket S3"
+  default     = "vpc-0c896c57e26844c55"
 }
 
 variable "aws_instance_type" {
