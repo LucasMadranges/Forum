@@ -40,7 +40,7 @@ jobs:
         run: terraform validate
 
       - name: Terraform Plan
-        run: terraform plan
+        run: terraform plan -var="ghcr_token=${{ secrets.FORUM_TOKEN }}" -input=false
 
       - name: Terraform Apply
-        run: terraform apply -var="ghcr_token=${{ secrets.FORUM_TOKEN }}"
+        run: terraform apply -var="ghcr_token=${{ secrets.FORUM_TOKEN }}" -input=false
