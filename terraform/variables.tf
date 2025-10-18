@@ -41,3 +41,9 @@ variable "ssh_key_name" {
   type        = string
   default     = "lucasmdr-ssh-key"
 }
+
+variable "ghcr_token" {
+  type        = string
+  sensitive   = true
+  description = "Token GHCR"
+}
