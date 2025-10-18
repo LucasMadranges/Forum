@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.1.2](https://github.com/LucasMadranges/Forum/compare/v1.1.1...v1.1.2) (2025-10-18)
+
+
+### Bug Fixes
+
+* **deploy:** automate terraform apply by adding auto-approve flag ([#32](https://github.com/LucasMadranges/Forum/issues/32)) ([a1376e7](https://github.com/LucasMadranges/Forum/commit/a1376e74f0fbfb4c5c213eebd94a24bfd23bb83b))
+
 ## [1.1.1](https://github.com/LucasMadranges/Forum/compare/v1.1.0...v1.1.1) (2025-10-18)
 
 
