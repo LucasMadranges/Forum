@@ -33,11 +33,11 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Terraform Destroy
-        run: terraform destroy -var="ghcr_token=${{ secrets.FORUM_TOKEN }}" -input=false -auto-approve
-
       - name: Terraform Init
         run: terraform init
+        
+      - name: Terraform Destroy
+        run: terraform destroy -var="ghcr_token=${{ secrets.FORUM_TOKEN }}" -input=false -auto-approve
 
       - name: Terraform Validate
         run: terraform validate
