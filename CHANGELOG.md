@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.0](https://github.com/LucasMadranges/Forum/compare/v1.1.2...v1.2.0) (2025-10-19)
+
+
+### Features
+
+* **terraform:** improve ec2 configuration and deploy workflow ([#34](https://github.com/LucasMadranges/Forum/issues/34)) ([ca22a37](https://github.com/LucasMadranges/Forum/commit/ca22a37240fc4912a81d3d98e68c7a893eaf4965))
+
 ## [1.1.2](https://github.com/LucasMadranges/Forum/compare/v1.1.1...v1.1.2) (2025-10-18)
 
 
