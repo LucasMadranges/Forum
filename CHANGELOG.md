@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.2.1](https://github.com/LucasMadranges/Forum/compare/v1.2.0...v1.2.1) (2025-10-19)
+
+
+### Bug Fixes
+
+* **deploy:** reorder terraform steps in deploy workflow ([#36](https://github.com/LucasMadranges/Forum/issues/36)) ([a21d6b3](https://github.com/LucasMadranges/Forum/commit/a21d6b3adf40f0adb2613b9a6a33e5519b28296c))
+
 ## [1.2.0](https://github.com/LucasMadranges/Forum/compare/v1.1.2...v1.2.0) (2025-10-19)
 
 
