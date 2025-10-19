@@ -72,12 +72,18 @@ resource "aws_security_group" "ec2_web" {
   tags = { Name = "${var.aws_instance_name}-security" }
 }
 
+// Locals
+locals {
+  sg_id = aws_security_group.ec2_web.id
+  key   = aws_key_pair.deployer.key_name
+}
+
 // Instance EC2 DB
 resource "aws_instance" "db" {
   ami                    = data.aws_ami.amazon_linux_2.id
   instance_type          = var.aws_instance_type
-  key_name               = aws_key_pair.deployer.key_name
-  vpc_security_group_ids = [aws_security_group.ec2_web.id]
+  key_name               = local.key
+  vpc_security_group_ids = [local.sg_id]
 
   user_data = <<-EOF
               #!/bin/bash
@@ -113,9 +119,10 @@ resource "aws_instance" "db" {
 resource "aws_instance" "api" {
   ami                    = data.aws_ami.amazon_linux_2.id
   instance_type          = var.aws_instance_type
-  key_name               = aws_key_pair.deployer.key_name
-  vpc_security_group_ids = [aws_security_group.ec2_web.id]
-  depends_on             = [aws_instance.db]
+  key_name               = local.key
+  vpc_security_group_ids = [local.sg_id]
+
+  depends_on = [aws_instance.db]
 
   user_data = <<-EOF
               #!/bin/bash
@@ -149,9 +156,14 @@ resource "aws_instance" "api" {
 resource "aws_instance" "thread" {
   ami                    = data.aws_ami.amazon_linux_2.id
   instance_type          = var.aws_instance_type
-  key_name               = aws_key_pair.deployer.key_name
-  vpc_security_group_ids = [aws_security_group.ec2_web.id]
-  depends_on             = [aws_instance.api]
+  key_name               = local.key
+  vpc_security_group_ids = [local.sg_id]
+
+  // If doesn't exist
+  // key_name               = aws_key_pair.deployer.key_name
+  // vpc_security_group_ids = [aws_security_group.ec2_web.id]
+
+  depends_on = [aws_instance.api]
 
   user_data = <<-EOF
               #!/bin/bash
@@ -185,9 +197,14 @@ resource "aws_instance" "thread" {
 resource "aws_instance" "sender" {
   ami                    = data.aws_ami.amazon_linux_2.id
   instance_type          = var.aws_instance_type
-  key_name               = aws_key_pair.deployer.key_name
-  vpc_security_group_ids = [aws_security_group.ec2_web.id]
-  depends_on             = [aws_instance.api]
+  key_name               = local.key
+  vpc_security_group_ids = [local.sg_id]
+
+  // If doesn't exist
+  // key_name               = aws_key_pair.deployer.key_name
+  // vpc_security_group_ids = [aws_security_group.ec2_web.id]
+
+  depends_on = [aws_instance.api]
 
   user_data = <<-EOF
               #!/bin/bash
